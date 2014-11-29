@@ -3,7 +3,7 @@ Logistic Regression Results
 For each quote train on month m (April to Sept), test on month m + 1 (May to Oct), and compute the average (6 months train data, 6 months test data).
 
 
->>> util.logistic_multimonth_test_all()
+>>> rnn_util.logistic_multimonth_test_all()
 
 error rate on GOOG is: 0.428571
 error rate on GOOG is: 0.571429
