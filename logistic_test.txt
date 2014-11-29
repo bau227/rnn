@@ -1,6 +1,6 @@
 Logistic Regression Results
 
-For each quote train on month m (April to Sept), test on month m + 1 (May to Oct),and compute the average. (6 months train, 6 months test).
+For each quote train on month m (April to Sept), test on month m + 1 (May to Oct), and compute the average (6 months train, 6 months test).
 
 
 >>> util.logistic_multimonth_test_all()
