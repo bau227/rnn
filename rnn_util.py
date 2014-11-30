@@ -11,13 +11,13 @@ __status__ = "beta"
 
 
 """
-                          Function List
+                                Function List
                    
-                             WARNING:
+                                !!!WARNING!!!
                    
-                   THERE IS MINIMUM IF ANY ERROR TESTS
-                   SILLY THINGS WHEHTHER OR NOT A FILE EXISTS...
-                   ASSUMES THAT DATA HAS NOT MISSING VALUES AND IS PROPERLY
+                   THERE IS MINIMUM (IF ANY) ERROR TESTS,
+                   SILLY THINGS WHETHER OR NOT A FILE EXISTS...
+                   ASSUMES THAT DATA HAS NO MISSING VALUES AND IS PROPERLY
                    FORMATTED AND ORDERED. SEE .CSV AND .DATA FILES FOR
                    MORE INFO...
 
