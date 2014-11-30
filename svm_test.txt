@@ -1,0 +1,75 @@
+SVM tests 
+
+>>> rnn_svm.svm_multimonth_test_all()
+
+test error rate on MSFT is: 0.571429
+test error rate on MSFT is: 0.523810
+test error rate on MSFT is: 0.454545
+test error rate on MSFT is: 0.380952
+test error rate on MSFT is: 0.523810
+test error rate on MSFT is: 0.545455
+average error rate (over 6 tests--one/month) for MSFT is: 0.500000
+test error rate on GOOG is: 0.476190
+test error rate on GOOG is: 0.476190
+test error rate on GOOG is: 0.454545
+test error rate on GOOG is: 0.476190
+test error rate on GOOG is: 0.571429
+test error rate on GOOG is: 0.500000
+average error rate (over 6 tests--one/month) for GOOG is: 0.492424
+test error rate on CSCO is: 0.428571
+test error rate on CSCO is: 0.619048
+test error rate on CSCO is: 0.409091
+test error rate on CSCO is: 0.523810
+test error rate on CSCO is: 0.476190
+test error rate on CSCO is: 0.363636
+average error rate (over 6 tests--one/month) for CSCO is: 0.470058
+test error rate on IBM is: 0.380952
+test error rate on IBM is: 0.380952
+test error rate on IBM is: 0.500000
+test error rate on IBM is: 0.523810
+test error rate on IBM is: 0.523810
+test error rate on IBM is: 0.409091
+average error rate (over 6 tests--one/month) for IBM is: 0.453102
+test error rate on AKAM is: 0.428571
+test error rate on AKAM is: 0.428571
+test error rate on AKAM is: 0.636364
+test error rate on AKAM is: 0.666667
+test error rate on AKAM is: 0.619048
+test error rate on AKAM is: 0.545455
+average error rate (over 6 tests--one/month) for AKAM is: 0.554113
+test error rate on ADBE is: 0.476190
+test error rate on ADBE is: 0.285714
+test error rate on ADBE is: 0.454545
+test error rate on ADBE is: 0.523810
+test error rate on ADBE is: 0.428571
+test error rate on ADBE is: 0.590909
+average error rate (over 6 tests--one/month) for ADBE is: 0.459957
+test error rate on AMZN is: 0.476190
+test error rate on AMZN is: 0.428571
+test error rate on AMZN is: 0.454545
+test error rate on AMZN is: 0.523810
+test error rate on AMZN is: 0.571429
+test error rate on AMZN is: 0.500000
+average error rate (over 6 tests--one/month) for AMZN is: 0.492424
+test error rate on INTC is: 0.333333
+test error rate on INTC is: 0.619048
+test error rate on INTC is: 0.500000
+test error rate on INTC is: 0.428571
+test error rate on INTC is: 0.523810
+test error rate on INTC is: 0.636364
+average error rate (over 6 tests--one/month) for INTC is: 0.506854
+test error rate on ORCL is: 0.476190
+test error rate on ORCL is: 0.476190
+test error rate on ORCL is: 0.454545
+test error rate on ORCL is: 0.380952
+test error rate on ORCL is: 0.523810
+test error rate on ORCL is: 0.545455
+average error rate (over 6 tests--one/month) for ORCL is: 0.476190
+test error rate on NVDA is: 0.380952
+test error rate on NVDA is: 0.523810
+test error rate on NVDA is: 0.545455
+test error rate on NVDA is: 0.380952
+test error rate on NVDA is: 0.761905
+test error rate on NVDA is: 0.590909
+average error rate (over 6 tests--one/month) for NVDA is: 0.530664
+average error rate across all tests (10 stocks) is: 0.493579
