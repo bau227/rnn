@@ -11,15 +11,15 @@ __status__ = "beta"
 
 
 """
-                                Function List
-                   
-                                !!!WARNING!!!
-                   
-                   THERE IS MINIMUM (IF ANY) ERROR TESTS,
-                   SILLY THINGS WHETHER OR NOT A FILE EXISTS...
-                   ASSUMES THAT DATA HAS NO MISSING VALUES AND IS PROPERLY
-                   FORMATTED AND ORDERED. SEE .CSV AND .DATA FILES FOR
-                   MORE INFO...
+                         Function List
+                        !!!WARNING!!!
+
+        THERE IS MINIMUM (IF ANY) ERROR TESTS,
+        SILLY THINGS WHETHER OR NOT A DIR/FILE EXIST, OR
+        WHETHER A LIST IS EMPTY OR NOT...
+        CODE ASSUMES THAT DATA HAS NO MISSING VALUES AND IS PROPERLY
+        FORMATTED AND ORDERED. SEE .CSV AND .DATA FILES FOR
+        MORE INFO...
 
 Main:
                    
@@ -57,7 +57,8 @@ import datetime
 
 # Global Variables
 
-STOCK_LIST = ['MSFT', 'GOOG','CSCO', 'IBM', 'AKAM', 'AAPL', 'ADBE', 'AMZN', 'INTC', 'ORCL', 'NVDA']
+STOCK_LIST1 = ['MSFT', 'GOOG','CSCO', 'IBM', 'AKAM', 'AAPL', 'ADBE', 'AMZN', 'INTC', 'ORCL', 'NVDA']
+STOCK_LIST = ['MSFT', 'GOOG', 'CSCO', 'IBM','AKAM', 'ADBE', 'AMZN', 'INTC', 'ORCL', 'NVDA']
 STOCK_LIST2 = ['MSFT', 'CSCO', 'AKAM', 'ADBE', 'AMZN', 'INTC', 'ORCL', 'NVDA']
 MARKET_LIST = ['^COMP', '^DJIA', '^GSPC'] 
 TICKER_ECONOMIC = '^W5000'
@@ -73,15 +74,17 @@ DEFAULT_DATA_DIR ='.'
 DEFAULT_QUOTE_DIR = '.'
 DEFAULT_TRAIN_TEST_DIR = '.'
 
-def create_dataset(stock_list = STOCK_LIST, directory_data = DEFAULT_DATA_DIR, directory_quote = DEFAULT_QUOTE_DIR, \
-                   market_list = MARKET_LIST, ticker_economic = TICKER_ECONOMIC, ext_text = EXT_TEXT,\
+def create_dataset(label_type = 'log', stock_list = STOCK_LIST, directory_data = DEFAULT_DATA_DIR,\
+                   directory_quote = DEFAULT_QUOTE_DIR, \
+                   market_list = MARKET_LIST, ticker_economic = TICKER_ECONOMIC, \
+                   ext_text = EXT_TEXT,\
                    ext_data = EXT_DATA, delimiter = TEXT_DELIMITER, header=True):
     """
     @param self-explanatory, all have default values; typical call create_dataset()
     loops over STOCK_LIST and uses prep_raw_data and write_prep_data to load/adjust data quotes and save to .data file
     """
     for s in stock_list:
-        data = prep_raw_data(s, directory_quote, market_list, ticker_economic, ext_text, delimiter, header)
+        data = prep_raw_data(s, label_type, directory_quote, market_list, ticker_economic, ext_text, delimiter, header)
         write_prep_data(s, data, directory_data, ext_data) 
 
 # month must be between 4 and 9 for this data set
@@ -126,7 +129,7 @@ def create_traintest2(ticker_stock, train_month, directory_data = DEFAULT_DATA_D
                 f_test.write(line)
             i += 1
         
-def prep_raw_data(ticker_stock, directory_quote = DEFAULT_QUOTE_DIR, market_list = MARKET_LIST,\
+def prep_raw_data(ticker_stock, label_type='log', directory_quote = DEFAULT_QUOTE_DIR, market_list = MARKET_LIST,\
                   ticker_economic = TICKER_ECONOMIC,\
                   ext_text = EXT_TEXT, delimiter= TEXT_DELIMITER, header=True):
     """
@@ -165,7 +168,7 @@ def prep_raw_data(ticker_stock, directory_quote = DEFAULT_QUOTE_DIR, market_list
         if flag:
             flag = not flag
         else:
-            #Close Day, Day of Week, Average Price, High Low Variation, Open Price Variation, Volume Stock Variation, Volume Market Variation, Volume Economic Variation, month (placeholder used to create train and test sets)
+            #Close Day, Day of Week, Average Price,  Open Price Variation, High Low Variation, Volume Stock Variation, Price Market Variation, Price Economic Variation, month (placeholder used to create train and test sets)
             #Close Day is a temporary entry. It will be used to determine the true label value.
             l = []
             for i in range(NUM_MONTH):
@@ -209,7 +212,7 @@ def prep_raw_data(ticker_stock, directory_quote = DEFAULT_QUOTE_DIR, market_list
     for i in range(1, len(current_data)):
         c = current_data[i]
         if i < len(current_data) - 1:
-           label = get_label(current_data[i][0], current_data[i+1][0])
+           label = get_label(current_data[i][0], current_data[i+1][0], label_type)
         else:
            label = 0
         # don't add last entry
@@ -239,14 +242,29 @@ def write_prep_data(ticker_name, data_list, directory_data = DEFAULT_DATA_DIR, e
         line = ' '.join(str(x) for x in data_list[i]) + '\n'
         f_data.write(line)
 
-# Label +1 if next closing price is higher, -1 if lower, 0 if within the deviation margin
-def get_label(v1, v2, deviation = 0.001):
+
+#log => label for logistic regression [0,1]
+#svm => label for support machine vector [-1, 1]
+#log => label for recurrent neural network [-1, 0, 1]
+
+def get_label(v1, v2, label_type = 'log', deviation = 0.001):
     c = get_change(v1, v2)
-    if c > deviation:
-        return +1
-    if c < -deviation:
-        return -1
-    return 0    
+    if label_type == 'log':
+        if c >= 0:
+            return +1
+        else:
+            return 0
+    elif label_type == 'svm':
+        if c >= 0:
+            return +1
+        else:
+            return -1
+    elif label_type == 'rnn':
+        if c > deviation:
+            return +1
+        if c < -deviation:
+            return -1
+        return 0
 
 # Converts a date string into day of week [0-6]    
 # In the calling function we add 1, so Mondays are 1 instead of 0.
@@ -262,7 +280,7 @@ def get_month(string_date, delimiter = '/'):
         
 def get_change(v1, v2):
     if v2 == 0: return 0
-    return  (float(v2) - float(v1)) / float(v2)
+    return  (float(v2) - float(v1)) / float(v1)
 
 def get_average(v1, v2):
      return  (float(v2) + float(v1)) / 2.0
@@ -285,9 +303,9 @@ def get_EMA(dataset, step):
     return ema
     
 #Sigmoid Function Classifier, deviation accounts for insignificant change
-def classify_sigmoid(v, weights, deviation = 0.001):
+def classify_sigmoid(v, weights, deviation = 0.0):
     probability = get_sigmoid(sum(v * weights))
-    if probability > 0.5 + deviation: return  +1
+    if probability >= 0.5 + deviation: return  +1
     if probability < 0.5 - deviation: return -1
     return 0
     
@@ -295,6 +313,7 @@ def classify_sigmoid(v, weights, deviation = 0.001):
 def SGA(data, label, eta = 0.001, num_iteration = 10):
     m,n = shape(data)
     weights = ones(n)   #initialize to all ones
+    #weights = zeros(n)
     for j in range(num_iteration):
         for i in range(m):
             h = get_sigmoid(sum(data[i]*weights))
@@ -355,8 +374,10 @@ def logistic_multimonth_test(ticker_stock, same_month = False, directory_data = 
     print 'average error rate (over %d tests--one/month) for %s is: %f' % ( num_test, ticker_stock, total_error/float(num_test))
     return total_error/float(num_test)
 
-def logistic_multimonth_test_all(ticker_list = STOCK_LIST, same_month = False, directory_data = DEFAULT_DATA_DIR,\
-                                directory_train_test = DEFAULT_TRAIN_TEST_DIR, ext_data = EXT_DATA, \
+def logistic_multimonth_test_all(ticker_list = STOCK_LIST, same_month = False,\
+                                directory_data = DEFAULT_DATA_DIR,\
+                                directory_train_test = DEFAULT_TRAIN_TEST_DIR, \
+                                ext_data = EXT_DATA, \
                                 ext_train = EXT_TRAIN, ext_test = EXT_TEST):
     """
     Test all entries/month for all stocks in TICKER_LIST (default)
@@ -368,3 +389,4 @@ def logistic_multimonth_test_all(ticker_list = STOCK_LIST, same_month = False, d
        num_test += 1
        total_error += logistic_multimonth_test(t, same_month, directory_data, directory_train_test, ext_data, ext_train, ext_test)
     print 'average error rate across all tests (%d stocks) is: %f' % (num_test, total_error/float(num_test))  
+    

@@ -77,9 +77,11 @@ def svm_multimonth_test(ticker_stock, same_month = False, directory_data = DEFAU
     print 'average error rate (over %d tests--one/month) for %s is: %f' % ( num_test, ticker_stock, total_error/float(num_test))
     return total_error/float(num_test)
 
-def svm_multimonth_test_all(ticker_list = STOCK_LIST, same_month = False, directory_data = DEFAULT_DATA_DIR,\
-                                directory_train_test = DEFAULT_TRAIN_TEST_DIR, ext_data = EXT_DATA, \
-                                ext_train = EXT_TRAIN, ext_test = EXT_TEST):
+def svm_multimonth_test_all(ticker_list = STOCK_LIST, same_month = False, \
+                            directory_data = DEFAULT_DATA_DIR,\
+                            directory_train_test = DEFAULT_TRAIN_TEST_DIR,\
+                            ext_data = EXT_DATA, \
+                            ext_train = EXT_TRAIN, ext_test = EXT_TEST):
     """
     Test all entries/month for all stocks in TICKER_LIST (default)
     calls logistic_multimomnth_test() iteratively over all stock symbols
