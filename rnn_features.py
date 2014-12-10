@@ -3,12 +3,12 @@ import datetime
 """
  
 Warning: There is no tests for file/directory existence
-CSV files must be sorted in ascending order
+         CSV files must be sorted in ascending order
 
 """
 def dateInRange(date_val, date_range):
     """
-    example usage: just FYI, used internally
+    Usage example: just FYI, used internally
     dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 'mm/dd/yyyy']) between 2 dates (inclusive)
     dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 0]) from date onward (0 arbitraty, any number will do)
     dateInRange('mm/dd/yyyy', ['mm']) filter for one month
@@ -110,7 +110,7 @@ other properties:
 #####################################################################################################-
 IMPORTANT:
   if you change labelType, uSensitiviy, marketList or economicList you have to re-run createDataSet()
-  to regenerate the data
+  to regenerate the data with the correct features/labels
 """
 class DataFactory:
     def __init__(self, label_type='S', header_count=1, u_sensitivity=0.001, quote_dir='./quotes',\
