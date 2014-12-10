@@ -8,12 +8,12 @@ CSV file must be sorted in ascending order
 """
 def dateInRange(date_val, date_range):
     """
-     example usage: just FYI, used internally
-     dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 'mm/dd/yyyy']) between 2 dates (inclusive)
+    example usage: just FYI, used internally
+    dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 'mm/dd/yyyy']) between 2 dates (inclusive)
     dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 0]) from date (0 arbitraty, any number will do)
     dateInRange('mm/dd/yyyy', ['mm']) in month
     dateInRange('mm/dd/yyyy', ['yyyy']) in year
-"""
+    """
     d = datetime.datetime.strptime(date_val, "%m/%d/%Y")
     if len(date_range) == 2:
         d1 = datetime.datetime.strptime(date_range[0], "%m/%d/%Y")
