@@ -2,17 +2,17 @@ import datetime
 
 """
  
-No test for file/directory existence
-CSV file must be sorted in ascending order
+Warning: There is no tests for file/directory existence
+CSV files must be sorted in ascending order
 
 """
 def dateInRange(date_val, date_range):
     """
     example usage: just FYI, used internally
     dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 'mm/dd/yyyy']) between 2 dates (inclusive)
-    dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 0]) from date (0 arbitraty, any number will do)
-    dateInRange('mm/dd/yyyy', ['mm']) in month
-    dateInRange('mm/dd/yyyy', ['yyyy']) in year
+    dateInRange('mm/dd/yyyy', ['mm/dd/yyyy', 0]) from date onward (0 arbitraty, any number will do)
+    dateInRange('mm/dd/yyyy', ['mm']) filter for one month
+    dateInRange('mm/dd/yyyy', ['yyyy']) filter for one year
     """
     d = datetime.datetime.strptime(date_val, "%m/%d/%Y")
     if len(date_range) == 2:
@@ -28,10 +28,12 @@ def dateInRange(date_val, date_range):
             return (int(d.year) == int(date_range[0]))
 
 def dateInMonth(date_val, month_val):
+    # boolean test
     d = datetime.datetime.strptime(date_val, "%m/%d/%Y")
     return (int(d.month) == int(month_val[0]))
 
 def dateInYear(date_val, year_val):
+    # boolean test
     d = datetime.datetime.strptime(date_val, "%m/%d/%Y")
     return (int(d.year) == int(year_val[0]))
     
@@ -41,14 +43,17 @@ def getDayofWeek(string_date, delimiter = '/'):
     return datetime.date.weekday(d)
     
 def getDate(string_date, delimiter = '/'):
+    # convert date string into date object
     s = string_date.split(delimiter)
     d = datetime.date(int(s[2]), int(s[0]), int(s[1]))
     return d
 
 def formatDate(string_date, delimiter = '/'):
+    # convert date string from m/d/yy to mm/dd/yyyy
     return datetime.datetime.strptime(string_date,"%m/%d/%y").strftime('%m/%d/%Y')
 
 def getDayofWeekVect(string_date, delimiter = '/'):
+    # use value of day as index to list [0,0,0,0,0] and sets it to 1
     s = string_date.split(delimiter)
     d = datetime.date(int(s[2]), int(s[0]), int(s[1]))
     l = [0]*5
@@ -72,42 +77,39 @@ ECONOMIC_LIST = ['^W5000']
 BASE_FEATURES = 6
 
 """"
-example usage: 
+Usage example: 
 
-For FF-NN, or RNN
-
-d = DataFactory()  # all value have defaults
+d = DataFactory()      # all values have defaults
 d.labelType = 'E'
 d.uSensitivity = 0.01 (default 0.001)
 d.quoteDir = './quotes'
 d.dataDir = './data'
 d.createDataset('IBM') 
 
-label, feature = d.loadDataSet('IBM', ['2014']) # loads all values for 2014
+labelList, featureList = d.loadDataSet('IBM', ['2014']) # loads all values for 2014
 
-after calling d.loadDataSet() 
-an internal list is saved in the class
-use
-   d.saveTrainData() 
-or d.saveTestData() to save your selection as Train or Test 
-
+#####################################################################################################-
+N.B.: after calling d.loadDataSet() an internal list is saved in the class
+use d.saveTrainData() or d.saveTestData() to save your loaded selection as Train or Test 
+#####################################################################################################-
 interesting properties:
-   labelType (values: 'S', 'A', 'E')
-      'S' : y-label is 0 or 1
-      'A' : y-label is 1 or -1
+   labelType = (values: 'S', 'A', 'E')
+      'S' : y-label is 0, 1
+      'A' : y-label is 1, -1
       'E' : y-label is 1, 0, -1
-   uSensitivity (default 0.001) works only with labelType == 'E' to determine unchanged values
+   uSensitivity = (default: 0.001) works only with labelType == 'E' to determine interval for unchanged values
       
    stockList = list of stocks (default STOCK_LIST)
-   marketList = list of stocks (default STOCK_LIST)  
+   marketList = list of stocks (default STOCK_LIST)  # you can limit or increase the number of market indices
    economicList = list of stocks (default STOCK_LIST)
-   
+   headerCount skips line reading in csv file by its value
 other properties:
    xxxDir sets directory
-   xxxExt sets file extensiomn
-
-Note:
-  if you change labelType, uSensitiviy, marketList or economicList you have to run createDataSet() again
+   xxxExt sets file extension
+   _xxxx  internal usage
+#####################################################################################################-
+IMPORTANT:
+  if you change labelType, uSensitiviy, marketList or economicList you have to re-run createDataSet()
   to regenerate the data
 """
 class DataFactory:
@@ -167,7 +169,7 @@ class DataFactory:
     def createDataSet(self, ticker_symbol):
         fStock = open(self.getFileName('Q', ticker_symbol), 'rU')
         featureCount = BASE_FEATURES + len(MARKET_LIST) + len(ECONOMIC_LIST)
-        featureCount += 6                   # 1 for label, 5 for Day of Week Vector
+        featureCount += 6     # 1 for label, 5 for Day of Week Vector
         
         #Files must have same number of entries in ascending date order
         
@@ -202,7 +204,6 @@ class DataFactory:
                 if k < self.headerCount:
                     k += 1; continue
                 s = line.strip().split(self.delimiter)
-                #print i, ' ', j, ' ', line, ' ', m
                 currentData[i][j] = float(s[4]) 
                 i +=1
             fMarket.close()
