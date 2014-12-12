@@ -24,8 +24,8 @@ test_X = []
 test_Y = []
 
 #num_prev = 5
-def create_training_set(num_prev, ff_nn=False):
-    feat_dict, date_list = create_feats_dict('msft', 'nsdq')
+def create_training_set(asset_name, num_prev, ff_nn=False):
+    feat_dict, date_list = create_feats_dict(asset_name, 'nsdq')
     #num_prev = 5
     back_days = [None] * (num_prev + 1)
     #print date_list
@@ -58,7 +58,7 @@ def create_training_set(num_prev, ff_nn=False):
     return num_feats
 
 def build_svm(kern):
-    print "DEBUG Y-----:", train_Y
+    #print "DEBUG Y-----:", train_Y
     #model = svm.SVC()
     #cross_validation.cross_val_score(model, X, y, scoring='mean_squared_error')
     clf = svm.SVC(kernel=kern)
@@ -77,38 +77,56 @@ def build_svm(kern):
 #    for test_x, test_y in zip(test_X, test_Y):
 #        pred = ffnn.activate(test_X)
         #print "FFNN PRED:----", pred, "ACT:", test_Y[0]
-def test_model(model, x, y, svm=False):
+def test_model(model, x, y, svm=False, verbose=False):
     #precision = corr / corr + false pos
     #recall = corr / corr + false neg
 
     corr = 0.
     false_pos = 0.
     false_neg = 0.
+    true_neg = 0.
     for test_x, test_y in zip(x, y):
         #print "DEBUG TEST MODEL:", pred, "TEST Y", test_y
+        success = ""
         if svm == False: #THIS IS NEURAL NETWORK
             pred = model.activate(test_x)
-            if pred[1] > pred[0] and test_y[0] == 1:
+
+
+            if pred[0] > pred[1] and test_y[0] == 1:
+                success = "SUCCESS"
                 corr+= 1
-            elif pred[1] > pred[0] and test_y[0] == 0:
+            elif pred[0] > pred[1] and test_y[0] == 0:
                 false_pos+= 1
-            elif pred[1] <= pred[0] and test_y[0] == 1:
+                success = "\t\tfalse pos"
+            elif pred[1] >= pred[0] and test_y[0] == 1:
                 false_neg+= 1
+                success = "\t\tfalse neg"
+            else:
+                true_neg += 1 
+                success = "SUCC NEG"
+            if verbose == True: print "DEBUG------PREDICTED:", pred, "ACTUAL:", test_y, success
         else: #THIS IS SVM
             pred = model.predict(test_x)
             if pred == 1 and test_y == 1:
                 corr+= 1
+                success = "SUCCESS"
             elif pred == 1 and test_y == 0:
                 false_pos+= 1
+                success = "\t\tfalse pos"
             elif pred == 0 and test_y == 1:
                 false_neg+= 1
-
+                success = "\t\tfalse neg"
+            else:
+                true_neg += 1
+                success = "SUCC NEG"
+            if verbose == True: print "DEBUG------PREDICTED:", pred, "ACTUAL:", test_y, success
         #print "PRED:", pred, "ACT:", test_y
     #print "CORR:", corr, "FP:", false_pos, "FN:", false_neg
     prec = corr / (corr + false_pos)
     recall = corr / (corr + false_neg)
     f_score = 2. * (prec * recall) / (prec + recall)
-    print "F1 SCORE:", f_score, "PRECISION:", prec
+    err = (corr + true_neg) / (corr + true_neg + false_pos + false_neg)
+    print "CORR", corr, "FP", false_pos, "FN", false_neg, "PRECISION:", prec, "RECALL", recall, "F1 SCORE:", f_score, "NON-ERR RATE:", err
     return f_score
             
 def build_2ffnn(inp, h1, h2, out):
@@ -135,15 +153,17 @@ def build_2ffnn(inp, h1, h2, out):
 def build_rec(inp, hid, out):
     n = RecurrentNetwork()
     n.addInputModule(LinearLayer(inp, name='in'))
-    n.addModule(TanhLayerLayer(hid, name='hidden'))
+    n.addModule(TanhLayer(hid, name='hidden'))
     n.addOutputModule(SoftmaxLayer(out, name='out'))
     n.addConnection(FullConnection(n['in'], n['hidden'], name='c1'))
     n.addConnection(FullConnection(n['hidden'], n['out'], name='c2'))
     n.addRecurrentConnection(FullConnection(n['hidden'], n['hidden'], name='c3'))
-    n.randomize()
     n.sortModules()
+    #n.randomize()
 
-def ffnn(inp, hidden, out, hidden2=-1, rec=False):
+    return n
+
+def ffnn(lr, num_epochs, inp, out, hidden, hidden2=-1, rec=False, mom=0.0):
     ds = ClassificationDataSet(inp, out)
     for tr_x, tr_y in zip(train_X, train_Y):
         #print "DEBUG:", tr_x, tr_y
@@ -151,37 +171,65 @@ def ffnn(inp, hidden, out, hidden2=-1, rec=False):
     if hidden2 != -1:
         ffnn = build_2ffnn(inp, hidden, hidden2, out)
     elif rec==True:
-        build_rec(inp, hidden, out)
+        ffnn = build_rec(inp, hidden, out)
     else:
         ffnn = buildNetwork(inp, hidden, out, bias=True, hiddenclass=TanhLayer, outclass=SoftmaxLayer)
-    trainer = BackpropTrainer(ffnn, ds,learningrate = 0.2, momentum=0.05, weightdecay=0.0, verbose=True)
+    trainer = BackpropTrainer(ffnn, ds,learningrate = lr, momentum=mom, weightdecay=0.0, verbose=True)
     
-
+    
     ######
-    numEpochs = 50
+    numEpochs = num_epochs
     for _ in range(0, numEpochs):
         trainer.train()
-        print "TRAIN SET:"
+        #print "TRAIN SET:"
+        #print "DEBUG-------LEN X:", len(train_X), "LEN_Y:", len(train_Y), "TEST_X:", len(test_X), "TEST_Y:", len(test_Y)
+        #for i in range (0,5):
+        #    print "DEBUG--------TRAIN X:", train_X[i], "TRAIN_Y", train_Y[i],
         test_model(ffnn, train_X, train_Y)
-        print "TEST SET:"
+        #print "TEST SET:"
+#        if _ == numEpochs - 1:
+#            v = True
+#        else:
+#            v = False
         test_model(ffnn, test_X, test_Y)
         
     #trainer.trainEpochs(epochs=20)
     return ffnn
 
+#compare to sample success stat
+def baseline_comp():
+    succ = 0.
 
+    for y in test_Y:
+        if not is_test_svm:
+            if y[0] == 1:
+                succ += 1
+        else:
+            if y == 1:
+                succ += 1
+    print "BASELINE HIT RATE:", succ / len(test_Y)
 ########Parameter
 
+asset_name = "msft"
 is_test_svm = False
-num_prev_days_feats = 10
+is_rnn = False
+num_prev_days_feats = 2
 #only applicable if neural net
-num_hidden_nodes = 20
+num_hidden_nodes = 10
+num_sec_layer = -1
+num_epochs = 20
+learning_rate = 0.1
+momentum = 0.0001
+#only applicable for svm
 kernel_type='linear'
+#rbf, linear, poly
 
-num_feats = create_training_set(num_prev_days_feats, ff_nn=(not is_test_svm))
+num_feats = create_training_set(asset_name, num_prev_days_feats, ff_nn=(not is_test_svm))
 #print "NUM TRAIN:", len(train_X), "NUM TEST:", len(test_X)
 if is_test_svm:
     model = build_svm(kernel_type)
 else:
-    model = ffnn(num_feats, num_feats+10, 2, 5)
-test_model(model, test_X, test_Y, svm=is_test_svm)
+    model = ffnn(learning_rate, num_epochs, num_feats, 2, num_hidden_nodes, hidden2=num_sec_layer, rec=is_rnn, mom=momentum)
+
+test_model(model, test_X, test_Y, svm=is_test_svm, verbose=True)
+baseline_comp()

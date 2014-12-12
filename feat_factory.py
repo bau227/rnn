@@ -23,7 +23,8 @@ def is_train(date):
 
 #def gen_features(Date, Open, High, Low, Close, Volume, Adj_Close, weekday):
 path_dict = {'msft': 'quotes/MSFT.csv',
-              'nsdq': 'quotes/^IXIC.csv'}
+             'nsdq': 'quotes/^IXIC.csv',
+             'msft_rec': 'quotes/MSFT_rec.csv'}
 
 
 def create_feats_dict(str_asset, index):
@@ -130,13 +131,16 @@ def create_feats_dict(str_asset, index):
             tr, o, h, l, v, c, ac, pd, nd = feat_dict[date]
             #(pd - min_pos_delta) / range_pos_delta, (nd - min_neg_delta) / range_neg_delta,
             #fin_feat_list = [pd, nd, adj_delta, ind_delta]
-            if c - o > 0:
+            if adj_delta > 1:
                 y_out = 1
             else:
                 y_out = 0
-            fin_feat_list = [tr, y_out, nd,
-                             (o - min_open) / range_open, (h - min_hi) / range_hi, (l - min_lo) / range_lo, 
-                             (v - min_vol) / range_vol, adj_delta, ind_delta]
+            hi_delta = h - o
+            lo_delta = l - o
+            fin_feat_list = [tr, y_out, nd, adj_delta, ind_delta, hi_delta, lo_delta]
+#            fin_feat_list = [tr, y_out, nd,
+#                             (o - min_open) / range_open, (h - min_hi) / range_hi, (l - min_lo) / range_lo, 
+#                             (v - min_vol) / range_vol, adj_delta, ind_delta]
                        
             date_feat_list = []
         #Add Feature Template for Day of Week and Month
@@ -146,12 +150,13 @@ def create_feats_dict(str_asset, index):
                 if weekday == i: date_feat_list.append(1)
                 else: date_feat_list.append(0)
             
-#            for i in range(1, 13):
+#            for i in [0,11]:
 #                if month == i: date_feat_list.append(1)
 #                else: date_feat_list.append(0)
             all_feats = []
 #            all_feats = [is_train(date)]
             all_feats.extend(fin_feat_list)
+
 #            all_feats.extend(date_feat_list)
             all_feats_dict[currDate] = all_feats
 
@@ -160,5 +165,5 @@ def create_feats_dict(str_asset, index):
     #print ret_date_list
     return all_feats_dict, ret_date_list
 
-dict, date_list = create_feats_dict('msft', 'nsdq')
+#dict, date_list = create_feats_dict('msft', 'nsdq')
 #print dict
