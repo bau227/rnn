@@ -1,5 +1,7 @@
 CS 221 Project: Recurrent Neural Networks for Stock Price Prediction.
+
 December 2014
+
 Stanford -- Ben and Anwar
 
 Most of the code is experimental and a lot of it is interactive. This is by no means a single application but several testing functions that are undocumented and do not include any error handling. We are trying to test different ML algorithms to see which one works better in predicting financial time-series data (stock quotes). The algorithms are: Logistic Regression (LR); Support Vector Machines (SVM) with Linear, rbf, and polynomial kernels; Feed-Forward Neural Network (FF-NN), and Recurrent Neural Network (RNN). Most of the output is then transferred to Excel for analysis.
